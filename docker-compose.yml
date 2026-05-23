@@ -33,7 +33,7 @@ services:
 
   # Microservicio de Despachos (Spring Boot)
   back-despachos:
-    build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHOS
+    build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
     container_name: back-despachos
     ports:
       - "8082:8080"
@@ -52,7 +52,7 @@ services:
     build: ./front_despacho
     container_name: front-despacho
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - back-ventas
       - back-despachos

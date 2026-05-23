@@ -5,7 +5,7 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 # Compilar el proyecto saltándose las pruebas unitarias para acelerar el proceso
-RUN mvc clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # --- ETAPA 2: Ejecución (Runner) ---
 FROM eclipse-temurin:17-jre-alpine AS runner
