@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Capa de Datos: Motor MariaDB 10.5 requerido por la pauta
+  database:
+    image: mariadb:10.5
+    container_name: innovatech-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: innovatech_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - back-network
+
+  # Microservicio de Ventas (Spring Boot)
+  back-ventas:
+    build: ./back-Ventas_SpringBoot/Springboot-API-REST
+    container_name: back-ventas
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/innovatech_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root_password
+    depends_on:
+      - database
+    networks:
+      - back-network
+      - front-network
+
+  # Microservicio de Despachos (Spring Boot)
+  back-despachos:
+    build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHOS
+    container_name: back-despachos
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/innovatech_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root_password
+    depends_on:
+      - database
+    networks:
+      - back-network
+      - front-network
+
+  # Capa de Frontend (Nginx)
+  frontend:
+    build: ./front_despacho
+    container_name: front-despacho
+    ports:
+      - "80:80"
+    depends_on:
+      - back-ventas
+      - back-despachos
+    networks:
+      - front-network
+
+# Definición del Named Volume para Persistencia (IE3)
+volumes:
+  db_data:
+
+# Redes aisladas independientes para Seguridad DevOps (IE2 y IE7)
+networks:
+  back-network:
+    driver: bridge
+  front-network:
+    driver: bridge
