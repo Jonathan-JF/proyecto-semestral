@@ -1,6 +1,5 @@
 name: Pipeline CI/CD - Innovatech Chile
 
-# El pipeline se activa únicamente al hacer push en la rama deploy exigida por la pauta
 on:
   push:
     branches:
@@ -11,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Descargar el código del repositorio en el servidor de GitHub
       - name: Checkout del codigo
         uses: actions/checkout@v4
 
-      # 2. Configurar las credenciales de AWS usando los Secrets que guardamos
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -24,15 +21,12 @@ jobs:
           aws-session-token: ${{ secrets::AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # 3. Autenticarse en Docker Hub de forma segura (si usas Docker Hub)
-      # Nota: Si el profesor les pide usar AWS ECR, este paso se ajustará para ECR.
       - name: Iniciar sesion en Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets::DOCKERHUB_USERNAME }}
           password: ${{ secrets::DOCKERHUB_TOKEN }}
 
-      # 4. Construir y publicar las imágenes Docker usando tus Dockerfiles locales
       - name: Construir y Publicar Imagenes a Docker Hub
         run: |
           docker build -t ${{ secrets::DOCKERHUB_USERNAME }}/innovatech-front:latest ./front_despacho
@@ -43,7 +37,6 @@ jobs:
           docker push ${{ secrets::DOCKERHUB_USERNAME }}/innovatech-back-ventas:latest
           docker push ${{ secrets::DOCKERHUB_USERNAME }}/innovatech-back-despachos:latest
 
-      # 5. Desplegar los contenedores actualizados automáticamente en tu AWS EC2
       - name: Despliegue automatico en AWS EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
