@@ -3,7 +3,7 @@ name: CI/CD ITP CARGO - Innovatech Chile
 on:
   push:
     branches:
-      - ecs-deploy
+      - deploy
 
 env:
   AWS_REGION: us-east-1
