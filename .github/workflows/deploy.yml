@@ -1,19 +1,21 @@
-name: Pipeline CI/CD - Innovatech Chile
+name: CI/CD ITP CARGO - Innovatech Chile
 
 on:
   push:
     branches:
-      - deploy
+      - ecs-deploy
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 122501127840.dkr.ecr.us-east-1.amazonaws.com
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout del codigo
         uses: actions/checkout@v4
-
 
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -21,17 +23,43 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Despliegue automatico en AWS EC2 via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 34.207.71.210 
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            mkdir -p /home/ec2-user/proyecto
-            cd /home/ec2-user/proyecto
-            # Si tienes el código clonado en la instancia, puedes forzar un pull o copia:
-            sudo docker-compose down
-            sudo docker-compose up --build -d
+      - name: Login a Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build y Push Frontend
+        run: |
+          docker build -t $ECR_REGISTRY/itp-cargo/front-despacho:${{ github.sha }} ./front_despacho
+          docker push $ECR_REGISTRY/itp-cargo/front-despacho:${{ github.sha }}
+
+      - name: Build y Push Backend Ventas
+        run: |
+          docker build -t $ECR_REGISTRY/itp-cargo/back-ventas:${{ github.sha }} ./back-Ventas_SpringBoot
+          docker push $ECR_REGISTRY/itp-cargo/back-ventas:${{ github.sha }}
+
+      - name: Build y Push Backend Despachos
+        run: |
+          docker build -t $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }} ./back-Despachos_SpringBoot
+          docker push $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }}
+
+      - name: Deploy Frontend a ECS
+        run: |
+          aws ecs update-service \
+            --cluster itp-cargo-cluster \
+            --service svc-frontend \
+            --force-new-deployment
+
+      - name: Deploy Backend Ventas a ECS
+        run: |
+          aws ecs update-service \
+            --cluster itp-cargo-cluster \
+            --service svc-back-ventas \
+            --force-new-deployment
+
+      - name: Deploy Backend Despachos a ECS
+        run: |
+          aws ecs update-service \
+            --cluster itp-cargo-cluster \
+            --service svc-back-despachos \
+            --force-new-deployment
