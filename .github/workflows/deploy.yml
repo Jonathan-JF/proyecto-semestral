@@ -55,7 +55,7 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster itp-cargo-cluster \
-            --service svc-back-ventas \
+            --service itp-cargo-back-ventas-service-e81lrm11 \
             --force-new-deployment
 
       - name: Deploy Backend Despachos a ECS
