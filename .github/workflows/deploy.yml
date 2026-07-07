@@ -35,13 +35,14 @@ jobs:
 
       - name: Build y Push Backend Ventas
         run: |
-          docker build -t $ECR_REGISTRY/itp-cargo/back-ventas:${{ github.sha }} ./back-Ventas_SpringBoot
+          docker build -t $ECR_REGISTRY/itp-cargo/back-ventas:${{ github.sha }} ./back-Ventas_SpringBoot/Springboot-API-REST
           docker push $ECR_REGISTRY/itp-cargo/back-ventas:${{ github.sha }}
 
       - name: Build y Push Backend Despachos
         run: |
-          docker build -t $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }} ./back-Despachos_SpringBoot
+          docker build -t $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }} ./back-Despachos_SpringBoot/Springboot-API-REST-DESPA...
           docker push $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }}
+          
 
       - name: Deploy Frontend a ECS
         run: |
