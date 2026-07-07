@@ -40,7 +40,7 @@ jobs:
 
       - name: Build y Push Backend Despachos
         run: |
-          docker build -t $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }} ./back-Despachos_SpringBoot/Springboot-API-REST-DESPA...
+          docker build -t $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }} ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
           docker push $ECR_REGISTRY/itp-cargo/back-despachos:${{ github.sha }}
           
 
